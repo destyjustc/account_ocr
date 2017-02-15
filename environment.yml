@@ -1,8 +1,18 @@
 name: account_ocr
 channels:
 - !!python/unicode
+  'conda-forge'
+- !!python/unicode
   'defaults'
 dependencies:
+- !!python/unicode
+  'aniso8601=1.1.0=py27_0'
+- !!python/unicode
+  'python-dateutil=2.6.0=py27_0'
+- !!python/unicode
+  'pytz=2016.10=py27_0'
+- !!python/unicode
+  'six=1.10.0=py27_1'
 - !!python/unicode
   'openssl=1.0.2k=0'
 - !!python/unicode
@@ -24,9 +34,12 @@ dependencies:
 - pip:
   - click==6.7
   - flask==0.12
+  - flask-mysql==1.4.0
+  - flask-restful==0.3.5
   - itsdangerous==0.24
   - jinja2==2.9.5
   - markupsafe==0.23
+  - pymysql==0.7.10
   - werkzeug==0.11.15
 prefix: !!python/unicode '/home/josh.yang/miniconda2/envs/account_ocr'
 
