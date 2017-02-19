@@ -1,2 +1,6 @@
 /.idea
 /backend/upload/*
+data
+ai/python/.idea
+ai/notebook/.ipynb_checkpoints/*
+ai/python/__pycache__/*
