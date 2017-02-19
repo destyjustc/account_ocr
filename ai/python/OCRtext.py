@@ -15,7 +15,6 @@ def OCRTextLine(img, baseHeight=100, blurSize=5, threshold=180, lang='eng', boxe
     blur = cv2.GaussianBlur(gray,(blurSize,blurSize),0)
     binary_output = np.zeros_like(blur)
     binary_output[blur < threshold] = 1
-    output = cv2.connectedComponentsWithStats(binary_output, 8y, cv2.CV_32S)
     img = Image.fromarray(np.uint8((binary_output)))
     output = pytesseract.image_to_string(img, lang, boxes, config="-psm 7")
     if showPlots:
