@@ -5,7 +5,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 
-def OCRTextLine(img, baseHeight=100, blurSize=5, threshold=180, lang='eng', boxes=False, showPlots=False):
+def OCRTextLine(img, baseHeight=100, blurSize=9, threshold=220, lang='eng', boxes=False, showPlots=False):
     height, width = img.shape[:2]
     scale = baseHeight/height
     newHeight = int(baseHeight)
