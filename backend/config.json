@@ -4,5 +4,6 @@
     "password": "",
     "db_name": "account_ocr",
     "host": "localhost"
-  }
+  },
+  "db_url": "mysql://root:@localhost/account_ocr"
 }
