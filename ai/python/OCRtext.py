@@ -3,9 +3,9 @@ import pytesseract
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
+import argparse
 
-
-def OCRTextLine(img, baseHeight=100, blurSize=9, threshold=220, lang='eng', boxes=False, showPlots=False):
+def OCRTextLine(img, baseHeight=100, blurSize=5, threshold=180, lang='eng', boxes=False, showPlots=False):
     height, width = img.shape[:2]
     scale = baseHeight/height
     newHeight = int(baseHeight)
@@ -38,9 +38,9 @@ def OCRTextLine(img, baseHeight=100, blurSize=9, threshold=220, lang='eng', boxe
     return output
 
 
-def histConstruct(img, scale=2, axis=1, blurSize=9, threshold=180, showPlot=False):
+def histConstruct(img, axis=1, blurSize=9, threshold=180, showPlot=False):
     height, width = img.shape[:2]
-    img = cv2.resize(img,(width, scale*height), interpolation = cv2.INTER_NEAREST)
+    img = cv2.resize(img,(width, height), interpolation = cv2.INTER_NEAREST)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray,(blurSize, blurSize),0)
     binary_output = np.zeros_like(blur)
@@ -49,10 +49,10 @@ def histConstruct(img, scale=2, axis=1, blurSize=9, threshold=180, showPlot=Fals
     if showPlot:
         plt.figure()
         plt.plot(hist)
-    return(hist)
+    return hist
 
 
-def findTexLine(hist):
+def findTextLine(hist):
     listOfLines = list()
     start = -1
     for i in range(len(hist) - 1):
@@ -63,5 +63,28 @@ def findTexLine(hist):
             listOfLines.append((start, end))
     return listOfLines
 
-def cropLines(img, lineloc):
-    return img
+def cropLines(img, lineloc, offset=4):
+    return img[max(lineloc[0] - offset, 0) : lineloc[1] + offset, :]
+
+
+def pipeline(img):
+    hist = histConstruct(img)
+    linesLocation = findTextLine(hist)
+    listOfresults = list()
+    for lineloc in linesLocation:
+        listOfresults.append(OCRTextLine(cropLines(img, lineloc)))
+    return linesLocation, listOfresults
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='OCR text')
+    parser.add_argument(
+        'filename',
+        type=str,
+        help='The image file for OCR'
+    )
+    args = parser.parse_args()
+    filename = args.filename
+    img = cv2.imread(filename)
+    linesLocation, listOfResults = pipeline(img)
+    for (loc, result) in zip(linesLocation, listOfResults):
+        print('from {} to {} : {}'.format(loc[0], loc[1], result))
