@@ -7,6 +7,9 @@ import { AppComponent } from './app.component';
 import { IndexPageComponent } from './index-page/index-page.component';
 import { FileSelectDirective, FileDropDirective } from 'ng2-file-upload'; 
 import {UPLOAD_DIRECTIVES} from 'ng2-file-uploader/ng2-file-uploader';
+
+import { ApiService } from './shared';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -18,7 +21,9 @@ import {UPLOAD_DIRECTIVES} from 'ng2-file-uploader/ng2-file-uploader';
     FormsModule,
     HttpModule
   ],
-  providers: [],
+  providers: [
+    ApiService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
