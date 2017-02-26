@@ -1,6 +1,7 @@
 #!flask/bin/python
-from flask import Flask, request, Blueprint
+from flask import Flask, request, Blueprint, send_from_directory
 from flask_restful import Api
+from flask_cors import CORS, cross_origin
 # from flaskext.mysql import MySQL
 from flask_sqlalchemy import SQLAlchemy
 import os
@@ -19,6 +20,7 @@ def read_config():
         return data
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
 config = read_config()
@@ -31,6 +33,10 @@ db.init_app(app)
 
 api.add_resource(Upload, '/upload', '/upload/<string:id>')
 app.register_blueprint(api_bp)
+
+@app.route('/file/<path:path>')
+def send_file(path):
+    return send_from_directory('upload', path)
 
 
 # def connect_db(config):
