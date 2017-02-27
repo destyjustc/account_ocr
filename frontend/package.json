@@ -12,15 +12,14 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/common": "~2.1.0",
-    "@angular/compiler": "~2.1.0",
-    "@angular/core": "~2.1.0",
-    "@angular/forms": "~2.1.0",
-    "@angular/http": "~2.1.0",
-    "@angular/platform-browser": "~2.1.0",
-    "@angular/platform-browser-dynamic": "~2.1.0",
-    "@angular/router": "~3.1.0",
-    "angular-cli": "^1.0.0-beta.19-3",
+    "@angular/common": "2.4.0",
+    "@angular/compiler": "2.4.0",
+    "@angular/core": "2.4.0",
+    "@angular/forms": "2.4.0",
+    "@angular/http": "2.4.0",
+    "@angular/platform-browser": "2.4.0",
+    "@angular/platform-browser-dynamic": "2.4.0",
+    "@angular/router": "3.4.0",
     "angular2-http-file-upload": "^1.0.5",
     "core-js": "^2.4.1",
     "jquery": "^3.1.1",
@@ -32,9 +31,8 @@
     "zone.js": "^0.6.23"
   },
   "devDependencies": {
-    "@types/jasmine": "^2.2.30",
     "@types/node": "^6.0.42",
-    "angular-cli": "1.0.0-beta.19-3",
+    "angular-cli": "1.0.0-beta.24",
     "codelyzer": "1.0.0-beta.1",
     "jasmine-core": "2.4.1",
     "jasmine-spec-reporter": "2.5.0",
@@ -46,7 +44,7 @@
     "protractor": "4.0.9",
     "ts-node": "1.2.1",
     "tslint": "3.13.0",
-    "typescript": "~2.0.3",
+    "typescript": "2.1.1",
     "webdriver-manager": "10.2.5"
   }
 }
