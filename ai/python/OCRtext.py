@@ -5,6 +5,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import argparse
 
+
 def OCRTextLine(img, baseHeight=100, blurSize=5, threshold=180, lang='eng', boxes=False, showPlots=False):
     height, width = img.shape[:2]
     scale = baseHeight/height
@@ -63,17 +64,23 @@ def findTextLine(hist):
             listOfLines.append((start, end))
     return listOfLines
 
+
 def cropLines(img, lineloc, offset=4):
     return img[max(lineloc[0] - offset, 0) : lineloc[1] + offset, :]
 
 
-def pipeline(img):
+def pipeline(filename, top_left = (0,0), bottom_right = None):
+    img = cv2.imread(filename)
+    if bottom_right is None:
+        bottom_right = (img.shape[0], img.shape[1])
+    img = img[top_left[0]:bottom_right[0], top_left[1]:bottom_right[1]]
     hist = histConstruct(img)
     linesLocation = findTextLine(hist)
     listOfresults = list()
     for lineloc in linesLocation:
         listOfresults.append(OCRTextLine(cropLines(img, lineloc)))
     return linesLocation, listOfresults
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='OCR text')
@@ -82,9 +89,34 @@ if __name__ == '__main__':
         type=str,
         help='The image file for OCR'
     )
+    parser.add_argument(
+        'x1',
+        type=int,
+        help='X position of top left'
+    )
+    parser.add_argument(
+        'y1',
+        type=int,
+        help='Y position of top left'
+    )
+    parser.add_argument(
+        'x2',
+        type=int,
+        help='X position of bottom right'
+    )
+    parser.add_argument(
+        'y2',
+        type=int,
+        help='Y position of bottom right'
+    )
     args = parser.parse_args()
     filename = args.filename
-    img = cv2.imread(filename)
-    linesLocation, listOfResults = pipeline(img)
+    x1 = args.x1
+    y1 = args.y1
+    x2 = args.x2
+    y2 = args.y2
+
+
+    linesLocation, listOfResults = pipeline(filename, (x1, y1), (x2, y2))
     for (loc, result) in zip(linesLocation, listOfResults):
         print('from {} to {} : {}'.format(loc[0], loc[1], result))
