@@ -28,14 +28,15 @@ if DEBUG:
     pp.pprint(config)
 app.config['SQLALCHEMY_DATABASE_URI'] = config['db_url']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.config['APPLICATION_ROOT'] = "/api"
 db.app = app
 db.init_app(app)
 
-api.add_resource(Upload, '/upload', '/upload/<string:id>')
-api.add_resource(Coor, '/coors/<string:file_id>')
+api.add_resource(Upload, '/api/upload', '/api/upload/<string:id>')
+api.add_resource(Coor, '/api/coors/<string:file_id>')
 app.register_blueprint(api_bp)
 
-@app.route('/file/<path:path>')
+@app.route('/api/file/<path:path>')
 def send_file(path):
     return send_from_directory('upload', path)
 

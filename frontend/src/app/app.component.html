@@ -7,3 +7,6 @@
        (onUpload)="handleUpload($event)">
 </div>
 <img *ngIf="filePath" id="input-image" [src]="filePath">
+<div *ngFor="let img of cropImg">
+	<img *ngIf="img" id="input-image" [src]="img">
+</div>
