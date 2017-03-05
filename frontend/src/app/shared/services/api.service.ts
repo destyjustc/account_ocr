@@ -1,21 +1,24 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
+import { environment } from '../../../environments/environment';
 
 
 @Injectable()
 export class ApiService {
     static defaultHeader: Headers;
-    static mwBaseUrl: string = 'http://localhost:5000';
+    static mwBaseUrl: string = 'http://127.0.0.1:5000/api';
     static init: boolean = false;
 
     constructor(
         private http: Http
         ) {
-    	console.log('init');
     	if (!ApiService.init) {
             ApiService.defaultHeader = new Headers();
             ApiService.defaultHeader.append('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+        }
+        if (!environment.production) {
+            this.setBaseUrl('http://127.0.0.1:5000/api');
         }
         // let _build = (<any> http)._backend._browserXHR.build;
         // (<any> http)._backend._browserXHR.build = () => {

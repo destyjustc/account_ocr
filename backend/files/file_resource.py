@@ -5,6 +5,7 @@ import uuid
 import json
 from user.user import db, User
 from PIL import Image
+from ai.OCRtext import *
 
 
 class Upload(Resource):
@@ -42,7 +43,9 @@ class Coor(Resource):
                     break
             img2 = img.crop((args['left'], args['top'], args['right'], args['bottom']))
             # img2 = img.crop((0,0,100,100))
-            img2.save(os.path.join(os.getcwd(), 'upload/', fn+extension))
+            img2name = os.path.join(os.getcwd(), 'upload/', fn + extension)
+            img2.save(img2name)
+            result1, result2 = pipeline(img2name)
             fileArea = FileArea(id,
                                 file_id,
                                 fn,
