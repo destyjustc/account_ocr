@@ -1,45 +1,37 @@
-name: account_ocr
-channels:
-- !!python/unicode
-  'conda-forge'
-- !!python/unicode
-  'defaults'
+name: p3.5
 dependencies:
-- !!python/unicode
-  'aniso8601=1.1.0=py27_0'
-- !!python/unicode
-  'python-dateutil=2.6.0=py27_0'
-- !!python/unicode
-  'pytz=2016.10=py27_0'
-- !!python/unicode
-  'six=1.10.0=py27_1'
-- !!python/unicode
-  'openssl=1.0.2k=0'
-- !!python/unicode
-  'pip=9.0.1=py27_1'
-- !!python/unicode
-  'python=2.7.13=0'
-- !!python/unicode
-  'readline=6.2=2'
-- !!python/unicode
-  'setuptools=27.2.0=py27_0'
-- !!python/unicode
-  'sqlite=3.13.0=0'
-- !!python/unicode
-  'tk=8.5.18=0'
-- !!python/unicode
-  'wheel=0.29.0=py27_0'
-- !!python/unicode
-  'zlib=1.2.8=3'
+- openssl=1.0.2k=1
+- pip=9.0.1=py35_1
+- python=3.5.3=0
+- readline=6.2=2
+- setuptools=27.2.0=py35_0
+- sqlite=3.13.0=0
+- tk=8.5.18=0
+- wheel=0.29.0=py35_0
+- xz=5.2.2=1
+- zlib=1.2.8=3
 - pip:
+  - aniso8601==1.2.0
   - click==6.7
+  - cycler==0.10.0
   - flask==0.12
-  - flask-mysql==1.4.0
+  - flask-cors==3.0.2
   - flask-restful==0.3.5
+  - flask-sqlalchemy==2.2
   - itsdangerous==0.24
   - jinja2==2.9.5
   - markupsafe==0.23
+  - matplotlib==2.0.0
+  - numpy==1.12.0
+  - olefile==0.44
+  - opencv-python==3.2.0.6
+  - pillow==4.0.0
   - pymysql==0.7.10
+  - pyparsing==2.1.10
+  - pytesseract==0.1.6
+  - python-dateutil==2.6.0
+  - pytz==2016.10
+  - six==1.10.0
+  - sqlalchemy==1.1.6
   - werkzeug==0.11.15
-prefix: !!python/unicode '/home/josh.yang/miniconda2/envs/account_ocr'
 

@@ -5,12 +5,12 @@ import uuid
 import json
 from user.user import db, User
 from PIL import Image
-from ai.OCRtext import *
+from ai.OCRtest import pipeline
 
 
 class Upload(Resource):
     def get(self, id):
-        print id
+        print(id)
         return json.dumps({"error": "file not found"})
     def post(self):
         p = os.path.join(os.getcwd(), 'upload')
@@ -27,7 +27,7 @@ class Upload(Resource):
 
 class Coor(Resource):
     def post(self, file_id):
-        args = json.loads(request.data)
+        args = json.loads(request.data.decode('utf-8'))
         id = str(uuid.uuid4())
         if (file_id):
             file = File.query.get(file_id)
