@@ -55,7 +55,7 @@ class Coor(Resource):
                                 args['right'])
             db.session.add(fileArea)
             db.session.commit()
-            return json.dumps({'filename': fn+extension, 'id': id})
+            return json.dumps({'filename': fn+extension, 'id': id, 'locations':result1, 'results':result2})
 
 
 class File(db.Model):

@@ -7,5 +7,14 @@
 	.crop-item{
 		order: 1;
 		margin: 20px;
+		img{
+			display: inline-block;
+			float: left;
+			margin-right: 5px;
+		}
+		.result{
+			display: inline-block;
+			float: left;
+		}
 	}
 }

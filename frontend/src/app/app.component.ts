@@ -59,7 +59,12 @@ export class AppComponent implements AfterViewInit{
             vm.apiService.mwPostJson('/coors/'+vm.fileId, obj).subscribe((data) => {
                 console.log(data);
                 data = JSON.parse(data)
-                vm.cropImg.push(vm.BASE_URL+'/file/'+data.filename);
+                let obj = {
+                    img: vm.BASE_URL+'/file/'+data.filename,
+                    positions: data.locations,
+                    results: data.results
+                };
+                vm.cropImg.push(obj);
                 console.log(vm.cropImg);
                 vm.applicationRef.tick();
             });
@@ -70,5 +75,14 @@ export class AppComponent implements AfterViewInit{
         $('#input-image').Jcrop({
             onSelect: this.sendCoors()
         })
+    }
+
+    getResultItemStyle(p) {
+        return {
+            'position': 'relative',
+            'top': p[0]+'px',
+            'line-height': (p[1]-p[0])+'px',
+            'left':'0px'
+        };
     }
 }

@@ -8,8 +8,12 @@
 </div>
 <img *ngIf="filePath" id="input-image" [src]="filePath" />
 <div class="result-table">
-	<div class="crop-item" *ngFor="let img of cropImg">
-		<img id="input-image" src="{{img}}">
-		<div>result</div>
+	<div class="crop-item" *ngFor="let obj of cropImg">
+		<img id="input-image" src="{{obj.img}}">
+		<div class="result">
+			<div class="result-item" *ngFor="let p of obj.positions; let i = index">
+				<div [ngStyle]="getResultItemStyle(p)">{{obj.results[i]}}</div>
+			</div>
+		</div>
 	</div>
 </div>
