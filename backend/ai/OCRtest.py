@@ -12,15 +12,16 @@ def OCRTextLine(img, baseHeight=100, blurSize=5, threshold=200, lang='eng', boxe
     newHeight = int(baseHeight)
     newWidth = int(scale*width)
     imgres = cv2.resize(img,(newWidth, newHeight), interpolation=cv2.INTER_LINEAR)
-    #gray = cv2.cvtColor(imgres, cv2.COLOR_RGB2YCrCb)[:,:,0]
+    gray = cv2.cvtColor(imgres, cv2.COLOR_RGB2YCrCb)[:,:,0]
     #blur = cv2.GaussianBlur(gray,(blurSize,blurSize),0)
     #binary_output = np.zeros_like(blur)
     #binary_output[blur < threshold] = 1
-    img = Image.fromarray(np.uint8((imgres)))
+    img = Image.fromarray(np.uint8((gray)))
     output = pytesseract.image_to_string(img, lang, boxes, config="-psm 7")
     if showPlots:
         plt.figure()
-        plt.imshow(imgres)
+        plt.imshow(gray, cmap='gray')
+        plt.show()
         # plt.figure()
         # plt.subplot(141)
         # plt.imshow(imgres)
@@ -74,7 +75,8 @@ def findTextLine(hist):
             start = i
         if hist[i] > 0 and hist[i+1] == 0 and start != -1:
             end = i+1
-            listOfLines.append((start, end))
+            if end -start > 5:
+                listOfLines.append((start, end))
     return listOfLines
 
 
@@ -93,7 +95,8 @@ def pipeline(filename, top_left = (0,0), bottom_right = None):
     listOfresults = list()
     print(linesLocation)
     for lineloc in linesLocation:
-        listOfresults.append(OCRTextLine(cropLines(img, lineloc)))
+        # For Chinese use lang='chi_sim'
+        listOfresults.append(OCRTextLine(cropLines(img, lineloc), lang='eng', showPlots=False))
     return linesLocation, listOfresults
 
 
