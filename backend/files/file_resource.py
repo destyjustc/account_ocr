@@ -6,6 +6,9 @@ import json
 from user.user import db, User
 from PIL import Image
 from ai.OCRtest import pipeline
+from sqlalchemy.dialects.postgresql import JSON
+import csv
+
 
 
 class Upload(Resource):
@@ -24,6 +27,23 @@ class Upload(Resource):
         db.session.add(file_to_save)
         db.session.commit()
         return json.dumps({'filename':f_name, 'id': id})
+
+class Csv(Resource):
+    def get(self, file_id):
+        areas = FileArea.query.filter_by(file_id=file_id).order_by(FileArea.filename).all()
+        ret = []
+        for i in areas:
+            print(i)
+            ret.append(json.loads(i.result))
+        print(type(ret[0][0]))
+        print(ret[0])
+        if len(ret):
+            fn = areas[0].file_id+'.csv'
+            path = os.path.join(os.getcwd(), 'upload/', fn)
+            with open(path, 'w', newline='') as f:
+                writer = csv.writer(f, dialect='excel')
+                writer.writerows(zip(*ret))
+        return json.dumps(path)
 
 class Coor(Resource):
     def post(self, file_id):
@@ -52,7 +72,8 @@ class Coor(Resource):
                                 args['top'],
                                 args['left'],
                                 args['bottom'],
-                                args['right'])
+                                args['right'],
+                                json.dumps(result2))
             db.session.add(fileArea)
             db.session.commit()
             return json.dumps({'filename': fn+extension, 'id': id, 'locations':result1, 'results':result2})
@@ -79,8 +100,9 @@ class FileArea(db.Model):
     right = db.Column(db.Integer)
     bottom = db.Column(db.Integer)
     left = db.Column(db.Integer)
+    result = db.Column(JSON)
 
-    def __init__(self, id, file_id, filename, top, right, bottom, left):
+    def __init__(self, id, file_id, filename, top, right, bottom, left, result):
         self.id = id
         self.file_id = file_id
         self.filename = filename
@@ -88,3 +110,4 @@ class FileArea(db.Model):
         self.right = right
         self.bottom = bottom
         self.left = left
+        self.result = result

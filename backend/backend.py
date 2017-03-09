@@ -9,7 +9,7 @@ import json
 import uuid
 import json
 import pprint as pp
-from files.file_resource import Upload, Coor
+from files.file_resource import Upload, Coor, Csv
 from user.user import User, db
 
 DEBUG = True
@@ -34,6 +34,7 @@ db.init_app(app)
 
 api.add_resource(Upload, '/api/upload', '/api/upload/<string:id>')
 api.add_resource(Coor, '/api/coors/<string:file_id>')
+api.add_resource(Csv, '/api/csv/<string:file_id>')
 app.register_blueprint(api_bp)
 
 @app.route('/api/file/<path:path>')
