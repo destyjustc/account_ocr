@@ -65,7 +65,7 @@ class Coor(Resource):
             # img2 = img.crop((0,0,100,100))
             img2name = os.path.join(os.getcwd(), 'upload/', fn + extension)
             img2.save(img2name)
-            result1, result2 = pipeline(img2name)
+            result1, result2, radio = pipeline(img2name)
             fileArea = FileArea(id,
                                 file_id,
                                 fn,

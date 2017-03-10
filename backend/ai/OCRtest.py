@@ -4,7 +4,10 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 import argparse
+import math
 
+
+MIN_ROW_HEIGHT = 30
 
 def OCRTextLine(img, baseHeight=100, blurSize=5, threshold=200, lang='eng', boxes=False, showPlots=False):
     height, width = img.shape[:2]
@@ -97,7 +100,12 @@ def pipeline(filename, top_left = (0,0), bottom_right = None):
     for lineloc in linesLocation:
         # For Chinese use lang='chi_sim'
         listOfresults.append(OCRTextLine(cropLines(img, lineloc), lang='eng', showPlots=False))
-    return linesLocation, listOfresults
+    if len(linesLocation):
+        radio = math.floor(MIN_ROW_HEIGHT/(linesLocation[0][1]-linesLocation[0][0]))
+        for lineloc in linesLocation:
+            lineloc[0] = lineloc[0]*radio
+            lineloc[1] = lineloc[1] * radio
+    return linesLocation, listOfresults, radio
 
 
 if __name__ == '__main__':
