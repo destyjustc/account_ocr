@@ -20,6 +20,8 @@ export class AppComponent implements AfterViewInit{
     options: Object;
     cropImg = []
 
+    zoom = 1;
+
     constructor(
         private apiService: ApiService,
         private applicationRef: ApplicationRef
@@ -81,8 +83,26 @@ export class AppComponent implements AfterViewInit{
         return {
             'position': 'relative',
             'top': p[0]+'px',
-            'line-height': (p[1]-p[0])+'px',
+            'line-height': (p[1]-p[0])*this.zoom+'px',
             'left':'0px'
         };
+    }
+
+    getResultImageStyle(obj) {
+        console.log(obj);
+        if (obj.positions.length) {
+            let diff = obj.positions[0][1]-obj.positions[0][0];
+            this.zoom = Math.floor(30/diff);
+            let height = (100*this.zoom).toString()+'%';
+            return {
+                '-moz-transform': 'scale('+this.zoom+')',
+                '-webkit-transform': 'scale('+this.zoom+')',
+                'transform': 'scale('+this.zoom+')'
+            }
+        }
+    }
+
+    onSubmit() {
+        console.log(this.cropImg);
     }
 }

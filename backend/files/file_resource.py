@@ -92,6 +92,10 @@ class File(db.Model):
     def __repr__(self):
         return '<File %r>' % self.filename
 
+class FileAreaResource(Resource):
+    def put(self):
+        print(request)
+
 class FileArea(db.Model):
     id = db.Column(db.String(80), primary_key=True)
     file_id = db.Column(db.String(80), db.ForeignKey('file.id'))
@@ -101,6 +105,7 @@ class FileArea(db.Model):
     bottom = db.Column(db.Integer)
     left = db.Column(db.Integer)
     result = db.Column(JSON)
+    corrected = db.Column(JSON)
 
     def __init__(self, id, file_id, filename, top, right, bottom, left, result):
         self.id = id
