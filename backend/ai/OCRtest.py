@@ -100,12 +100,7 @@ def pipeline(filename, top_left = (0,0), bottom_right = None):
     for lineloc in linesLocation:
         # For Chinese use lang='chi_sim'
         listOfresults.append(OCRTextLine(cropLines(img, lineloc), lang='eng', showPlots=False))
-    if len(linesLocation):
-        radio = math.floor(MIN_ROW_HEIGHT/(linesLocation[0][1]-linesLocation[0][0]))
-        for lineloc in linesLocation:
-            lineloc[0] = lineloc[0]*radio
-            lineloc[1] = lineloc[1] * radio
-    return linesLocation, listOfresults, radio
+    return linesLocation, listOfresults
 
 
 if __name__ == '__main__':

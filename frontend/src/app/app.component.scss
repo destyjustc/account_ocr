@@ -1,9 +1,8 @@
 .result-table{
-	// flex-direction: row;
-	// display: -webkit-flex; /* Safari */
- //    -webkit-flex-wrap: wrap; /* Safari 6.1+ */
- //    display: flex;   
- //    flex-wrap: wrap;
+	flex-direction: row;
+	display: -webkit-flex; /* Safari */
+    -webkit-flex-wrap: wrap; /* Safari 6.1+ */
+    display: flex;
 	.crop-item{
 		order: 1;
 		float: left;
@@ -15,7 +14,13 @@
 		}
 		.result{
 			display: inline-block;
+			position: relative;
 			float: left;
+            width: 200px;
+			.result-item{
+				position: absolute;
+                min-width: 100px;
+		 	}
 		}
 	}
 }

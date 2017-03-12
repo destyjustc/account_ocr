@@ -21,6 +21,7 @@ export class AppComponent implements AfterViewInit{
     cropImg = []
 
     zoom = 1;
+    downloadLink = '';
 
     constructor(
         private apiService: ApiService,
@@ -64,7 +65,8 @@ export class AppComponent implements AfterViewInit{
                 let obj = {
                     img: vm.BASE_URL+'/file/'+data.filename,
                     positions: data.locations,
-                    results: data.results
+                    results: data.results,
+                    id: data.id
                 };
                 vm.cropImg.push(obj);
                 console.log(vm.cropImg);
@@ -81,28 +83,22 @@ export class AppComponent implements AfterViewInit{
 
     getResultItemStyle(p) {
         return {
-            'position': 'relative',
+            'position': 'absolute',
             'top': p[0]+'px',
             'line-height': (p[1]-p[0])*this.zoom+'px',
-            'left':'0px'
+            'left':'0px',
+            'min-width': '172px'
         };
     }
 
-    getResultImageStyle(obj) {
-        console.log(obj);
-        if (obj.positions.length) {
-            let diff = obj.positions[0][1]-obj.positions[0][0];
-            this.zoom = Math.floor(30/diff);
-            let height = (100*this.zoom).toString()+'%';
-            return {
-                '-moz-transform': 'scale('+this.zoom+')',
-                '-webkit-transform': 'scale('+this.zoom+')',
-                'transform': 'scale('+this.zoom+')'
-            }
-        }
-    }
-
     onSubmit() {
-        console.log(this.cropImg);
+        let vm = this;
+        vm.apiService.mwPutJson('/coors/'+vm.fileId, this.cropImg).subscribe((data) => {
+            vm.apiService.mwGet('/csv/'+this.fileId).subscribe((res) => {
+                res = JSON.parse(res);
+                this.downloadLink = this.BASE_URL+'/file/'+res;
+                window.location.assign(this.downloadLink);
+            });
+        });
     }
 }

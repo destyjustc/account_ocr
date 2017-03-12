@@ -8,8 +8,9 @@ from PIL import Image
 from ai.OCRtest import pipeline
 from sqlalchemy.dialects.postgresql import JSON
 import csv
+import math
 
-
+MIN_ROW_HEIGHT = 30
 
 class Upload(Resource):
     def get(self, id):
@@ -34,7 +35,10 @@ class Csv(Resource):
         ret = []
         for i in areas:
             print(i)
-            ret.append(json.loads(i.result))
+            if i.corrected:
+                ret.append(json.loads(i.corrected))
+            else:
+                ret.append(json.loads(i.result))
         print(type(ret[0][0]))
         print(ret[0])
         if len(ret):
@@ -43,7 +47,7 @@ class Csv(Resource):
             with open(path, 'w', newline='') as f:
                 writer = csv.writer(f, dialect='excel')
                 writer.writerows(zip(*ret))
-        return json.dumps(path)
+        return json.dumps(fn)
 
 class Coor(Resource):
     def post(self, file_id):
@@ -65,7 +69,15 @@ class Coor(Resource):
             # img2 = img.crop((0,0,100,100))
             img2name = os.path.join(os.getcwd(), 'upload/', fn + extension)
             img2.save(img2name)
-            result1, result2, radio = pipeline(img2name)
+            result1, result2 = pipeline(img2name)
+            if result1 and len(result1):
+                radio = math.floor(MIN_ROW_HEIGHT/(result1[0][1]-result1[0][0]))
+                if radio > 1:
+                    img3 = img2.resize((img2.width*radio, img2.height*radio) , Image.ANTIALIAS)
+                    # img3name = os.path.join(os.getcwd(), 'upload/', fn + '_resized' + extension)
+                    img3.save(img2name)
+                    result1, result2 = pipeline(img2name)
+            # lst = getResizedLocations(result1, radio)
             fileArea = FileArea(id,
                                 file_id,
                                 fn,
@@ -73,10 +85,21 @@ class Coor(Resource):
                                 args['left'],
                                 args['bottom'],
                                 args['right'],
+                                json.dumps(result2),
                                 json.dumps(result2))
             db.session.add(fileArea)
             db.session.commit()
-            return json.dumps({'filename': fn+extension, 'id': id, 'locations':result1, 'results':result2})
+            return json.dumps({'filename': fn + extension, 'id': id, 'locations':result1, 'results':result2})
+    def put(self, file_id):
+        args = json.loads(request.data.decode('utf-8'))
+        print(request)
+        for i in args:
+            record = FileArea.query.filter_by(id=i['id']).first()
+            record.corrected = json.dumps(i['results'])
+            db.session.commit()
+            print('hello')
+
+
 
 
 class File(db.Model):
@@ -107,7 +130,7 @@ class FileArea(db.Model):
     result = db.Column(JSON)
     corrected = db.Column(JSON)
 
-    def __init__(self, id, file_id, filename, top, right, bottom, left, result):
+    def __init__(self, id, file_id, filename, top, right, bottom, left, result, corrected):
         self.id = id
         self.file_id = file_id
         self.filename = filename
@@ -116,3 +139,4 @@ class FileArea(db.Model):
         self.bottom = bottom
         self.left = left
         self.result = result
+        self.corrected = corrected
