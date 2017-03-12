@@ -102,6 +102,15 @@ def pipeline(filename, top_left = (0,0), bottom_right = None):
         listOfresults.append(OCRTextLine(cropLines(img, lineloc), lang='eng', showPlots=False))
     return linesLocation, listOfresults
 
+def linesHeight(filename, top_left = (0,0), bottom_right = None):
+    img = cv2.imread(filename)
+    if bottom_right is None:
+        bottom_right = (img.shape[0], img.shape[1])
+    img = img[top_left[0]:bottom_right[0], top_left[1]:bottom_right[1]]
+    hist = histConstruct(img)
+    linesLocation = findTextLine(hist)
+    return linesLocation
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='OCR text')
