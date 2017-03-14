@@ -48,8 +48,16 @@ def OCRTextLine(img, baseHeight=100, blurSize=5, threshold=200, lang='eng', boxe
 def histConstruct(img, axis=1, blurSize=9, threshold=220, showPlot=False):
     height, width = img.shape[:2]
     img = cv2.resize(img,(width, height), interpolation = cv2.INTER_NEAREST)
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2YCrCb)[:, :, 0]
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2YCrCb)[:, :, 0].astype(float)
+    shape = gray.shape
+    background = gray[:, 1].copy() - 255.0
+    for i  in range(shape[1]):
+        gray[:, i] = gray[:, i] - background
+    #equ = cv2.equalizeHist(gray)
     blur = cv2.GaussianBlur(gray,(blurSize, blurSize), 0)
+    #background = blur[:, 0]
+    #for i  in range(shape[1]):
+    #    blur[:, i] = blur[:,i] - background
     binary_output = np.zeros_like(blur)
     binary_output[blur < threshold] = 1
     hist = np.sum(binary_output, axis)
@@ -78,7 +86,7 @@ def findTextLine(hist):
             start = i
         if hist[i] > 0 and hist[i+1] == 0 and start != -1:
             end = i+1
-            if end -start > 5:
+            if end - start > 5:
                 listOfLines.append((start, end))
     return listOfLines
 
