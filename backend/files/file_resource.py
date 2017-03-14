@@ -5,10 +5,11 @@ import uuid
 import json
 from user.user import db, User
 from PIL import Image
-from ai.OCRtest import pipeline
+from ai.OCRtest import pipeline, findLineLocations
 from sqlalchemy.dialects.postgresql import JSON
 import csv
 import math
+from wand.image import Image as im
 
 MIN_ROW_HEIGHT = 30
 
@@ -20,11 +21,21 @@ class Upload(Resource):
         p = os.path.join(os.getcwd(), 'upload')
         file_obj = request.files;
         file = file_obj['file']
+        file_name_pre = os.path.splitext(file.filename)[0]
         extension = os.path.splitext(file.filename)[1]
         id = str(uuid.uuid4())
-        f_name =  id + extension
-        file.save(os.path.join(os.getcwd(), 'upload/', f_name))
-        file_to_save = File(id, file.filename)
+        f_name = id + extension
+        if file.content_type and file.content_type == 'application/pdf':
+            path = os.path.join(os.getcwd(), 'upload/', f_name)
+            file.save(path)
+            img = im(filename=path)
+            f_name = id + '.png'
+            path = os.path.join(os.getcwd(), 'upload/', f_name)
+            img.save(filename=path)
+            file_to_save = File(id, file_name_pre+'.png')
+        elif file.content_type and file.content_type.split('/')[0]=='image':
+            file.save(os.path.join(os.getcwd(), 'upload/', f_name))
+            file_to_save = File(id, file.filename)
         db.session.add(file_to_save)
         db.session.commit()
         return json.dumps({'filename':f_name, 'id': id})
@@ -55,6 +66,7 @@ class Coor(Resource):
         id = str(uuid.uuid4())
         if (file_id):
             file = File.query.get(file_id)
+            radio = file.radio
             extension = os.path.splitext(file.filename)[1]
             img = Image.open(os.path.join(os.getcwd(), 'upload/', file.id+extension))
             index = 0
@@ -69,14 +81,17 @@ class Coor(Resource):
             # img2 = img.crop((0,0,100,100))
             img2name = os.path.join(os.getcwd(), 'upload/', fn + extension)
             img2.save(img2name)
-            result1, result2 = pipeline(img2name)
-            if result1 and len(result1):
+            # result1, result2 = pipeline(img2name)
+            result1 = findLineLocations(img2name)
+            if radio == 0 and result1 and len(result1):
                 radio = math.floor(MIN_ROW_HEIGHT/(result1[0][1]-result1[0][0]))
-                if radio > 1:
-                    img3 = img2.resize((img2.width*radio, img2.height*radio) , Image.ANTIALIAS)
-                    # img3name = os.path.join(os.getcwd(), 'upload/', fn + '_resized' + extension)
-                    img3.save(img2name)
-                    result1, result2 = pipeline(img2name)
+                file.radio = radio
+                db.session.commit()
+            if radio > 1:
+                img3 = img2.resize((img2.width*radio, img2.height*radio) , Image.ANTIALIAS)
+                # img3name = os.path.join(os.getcwd(), 'upload/', fn + '_resized' + extension)
+                img3.save(img2name)
+            result1, result2 = pipeline(img2name)
             # lst = getResizedLocations(result1, radio)
             fileArea = FileArea(id,
                                 file_id,
@@ -106,10 +121,12 @@ class File(db.Model):
     id = db.Column(db.String(80), primary_key=True)
     filename = db.Column(db.String(80), unique=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    radio = db.Column(db.Integer)
 
     def __init__(self, fileId, filename):
         self.id = fileId
         self.filename = filename
+        self.radio = 0
         # self.user_id = user_id
 
     def __repr__(self):

@@ -94,6 +94,15 @@ def findTextLine(hist):
 def cropLines(img, lineloc, offset=4):
     return img[max(lineloc[0] - offset, 0) : lineloc[1] + offset, :]
 
+def findLineLocations(filename, top_left = (0,0), bottom_right = None):
+    img = cv2.imread(filename)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    if bottom_right is None:
+        bottom_right = (img.shape[0], img.shape[1])
+    img = img[top_left[0]:bottom_right[0], top_left[1]:bottom_right[1], :]
+    hist = histConstruct(img, showPlot=False)
+    linesLocation = findTextLine(hist)
+    return linesLocation
 
 def pipeline(filename, top_left = (0,0), bottom_right = None):
     img = cv2.imread(filename)
