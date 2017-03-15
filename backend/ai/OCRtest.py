@@ -3,6 +3,7 @@ import pytesseract
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
+from ai.dictionary import *
 import argparse
 import math
 
@@ -77,6 +78,58 @@ def histConstruct(img, axis=1, blurSize=9, threshold=220, showPlot=False):
         plt.show()
     return hist
 
+iparens = iter('(){}[]<>')
+parens = dict(zip(iparens, iparens))
+closing = parens.values()
+def balanced(astr):
+    stack = []
+    for c in astr:
+        d = parens.get(c, None)
+        if d:
+            stack.append(d)
+        elif c in closing:
+            if not stack or c != stack.pop():
+                return False
+    return not stack
+
+
+def postprocessDigitsColumn(listOfResults):
+    prob = []
+    listOfResultsNew = []
+    for line in listOfResults:
+        val = 1.0
+        if not balanced(line):
+            val /= 2.0
+        else:
+            for i in range(len(line)):
+                c = line[i]
+                if  not( c.isdigit() or c == '.' or c =='(' or c ==')' or c == '$'):
+                    val /=2.0
+                    if c in dictionaryFordigits:
+                        tmp = list(line)
+                        tmp[i] = dictionaryFordigits[c]
+                        line = ''.join(tmp)
+        prob.append(val)
+        listOfResultsNew.append(line)
+    return listOfResultsNew, prob
+
+def postprocessLettersColumn(listOfResults):
+    prob = []
+    for line in listOfResults:
+        prob.append(1.0)
+    return listOfResults, prob
+
+def postprocess(listOfResults):
+    digitsCount = 0.0
+    totalCharacterCount = 0.0
+    for line in listOfResults:
+        totalCharacterCount += len(line)
+        digitsCount += sum(c.isdigit() for c in line)
+    if digitsCount / totalCharacterCount > 0.5:
+        listOfResults, prob = postprocessDigitsColumn(listOfResults)
+    else:
+        listOfResults, prob = postprocessLettersColumn(listOfResults)
+    return listOfResults, prob
 
 def findTextLine(hist):
     listOfLines = list()
@@ -112,12 +165,13 @@ def pipeline(filename, top_left = (0,0), bottom_right = None):
     img = img[top_left[0]:bottom_right[0], top_left[1]:bottom_right[1], :]
     hist = histConstruct(img, showPlot=False)
     linesLocation = findTextLine(hist)
-    listOfresults = list()
+    listOfResults = list()
     print(linesLocation)
     for lineloc in linesLocation:
         # For Chinese use lang='chi_sim'
-        listOfresults.append(OCRTextLine(cropLines(img, lineloc), lang='eng', showPlots=False))
-    return linesLocation, listOfresults
+        listOfResults.append(OCRTextLine(cropLines(img, lineloc), lang='eng', showPlots=False))
+    listOfResults, prob = postprocess(listOfResults)
+    return linesLocation, listOfResults, prob
 
 def linesHeight(filename, top_left = (0,0), bottom_right = None):
     img = cv2.imread(filename)
@@ -130,40 +184,40 @@ def linesHeight(filename, top_left = (0,0), bottom_right = None):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='OCR text')
-    parser.add_argument(
-        'filename',
-        type=str,
-        help='The image file for OCR'
-    )
-    parser.add_argument(
-        'x1',
-        type=int,
-        help='X position of top left'
-    )
-    parser.add_argument(
-        'y1',
-        type=int,
-        help='Y position of top left'
-    )
-    parser.add_argument(
-        'x2',
-        type=int,
-        help='X position of bottom right'
-    )
-    parser.add_argument(
-        'y2',
-        type=int,
-        help='Y position of bottom right'
-    )
-    args = parser.parse_args()
-    filename = args.filename
-    x1 = args.x1
-    y1 = args.y1
-    x2 = args.x2
-    y2 = args.y2
+    # parser = argparse.ArgumentParser(description='OCR text')
+    # parser.add_argument(
+    #     'filename',
+    #     type=str,
+    #     help='The image file for OCR'
+    # )
+    # parser.add_argument(
+    #     'x1',
+    #     type=int,
+    #     help='X position of top left'
+    # )
+    # parser.add_argument(
+    #     'y1',
+    #     type=int,
+    #     help='Y position of top left'
+    # )
+    # parser.add_argument(
+    #     'x2',
+    #     type=int,
+    #     help='X position of bottom right'
+    # )
+    # parser.add_argument(
+    #     'y2',
+    #     type=int,
+    #     help='Y position of bottom right'
+    # )
+    # args = parser.parse_args()
+    # filename = args.filename
+    # x1 = args.x1
+    # y1 = args.y1
+    # x2 = args.x2
+    # y2 = args.y2
 
-
-    linesLocation, listOfResults = pipeline(filename, (x1, y1), (x2, y2))
-    for (loc, result) in zip(linesLocation, listOfResults):
-        print('from {} to {} : {}'.format(loc[0], loc[1], result))
+    filename='../../data/RBC_col2.png'
+    linesLocation, listOfResults, probs = pipeline(filename)
+    for (loc, result, prob) in zip(linesLocation, listOfResults, probs):
+        print('from {} to {} : {} prob {}'.format(loc[0], loc[1], result, prob))
