@@ -217,7 +217,7 @@ if __name__ == '__main__':
     # x2 = args.x2
     # y2 = args.y2
 
-    filename='../../data/RBC_col2.png'
+    filename='../../data/RBC_col1.png'
     linesLocation, listOfResults, probs = pipeline(filename)
     for (loc, result, prob) in zip(linesLocation, listOfResults, probs):
         print('from {} to {} : {} prob {}'.format(loc[0], loc[1], result, prob))
