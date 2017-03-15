@@ -91,7 +91,7 @@ class Coor(Resource):
                 img3 = img2.resize((img2.width*radio, img2.height*radio) , Image.ANTIALIAS)
                 # img3name = os.path.join(os.getcwd(), 'upload/', fn + '_resized' + extension)
                 img3.save(img2name)
-            result1, result2 = pipeline(img2name)
+            result1, result2, prob = pipeline(img2name)
             # lst = getResizedLocations(result1, radio)
             fileArea = FileArea(id,
                                 file_id,
