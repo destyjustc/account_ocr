@@ -31,6 +31,7 @@ class Upload(Resource):
             img = im(filename=path)
             f_name = id + '.png'
             path = os.path.join(os.getcwd(), 'upload/', f_name)
+            img.compression_quality = 99
             img.save(filename=path)
             file_to_save = File(id, file_name_pre+'.png')
         elif file.content_type and file.content_type.split('/')[0]=='image':
