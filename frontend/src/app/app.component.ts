@@ -18,10 +18,16 @@ export class AppComponent implements AfterViewInit{
     postId: number;
     BASE_URL = '';
     options: Object;
-    cropImg = []
+    cropImg = [];
+    uploaded_files = [];
+    file_index = 0;
+    file_count = 0;
 
     zoom = 1;
     downloadLink = '';
+
+    collection = [];
+    jcrop_api: any;
 
     constructor(
         private apiService: ApiService,
@@ -38,8 +44,11 @@ export class AppComponent implements AfterViewInit{
         if (data && data.response) {
             data = JSON.parse(data.response);
             data = JSON.parse(data)
-            this.fileId = data.id
-            this.filePath = this.BASE_URL+'/file/'+data.filename;
+            this.uploaded_files = data;
+            this.file_count = data.length;
+            this.fileId = data[0].id
+            this.filePath = this.BASE_URL+'/file/'+data[0].filename;
+            this.collection = data;
             setTimeout(() => {
                 this.activateAreaSelection()
             }, 200);
@@ -76,9 +85,12 @@ export class AppComponent implements AfterViewInit{
     }
 
     activateAreaSelection() {
+        let vm = this;
         $('#input-image').Jcrop({
             onSelect: this.sendCoors()
-        })
+        }, function() {
+            vm.jcrop_api = this;
+        });
     }
 
     getResultItemStyle(p) {
@@ -100,5 +112,16 @@ export class AppComponent implements AfterViewInit{
                 window.location.assign(this.downloadLink);
             });
         });
+    }
+
+    onPageChange(event) {
+        this.cropImg = [];
+        this.file_index = event - 1;
+        this.fileId = this.uploaded_files[this.file_index].id
+        this.filePath = this.BASE_URL+'/file/'+this.uploaded_files[this.file_index].filename;
+        // $('.jcrop-holder img').attr('src', this.filePath);
+        this.jcrop_api.setImage(this.filePath);
+        // this.jcrop_api.setImage(this.filePath);
+        // console.log(this.filePath);
     }
 }

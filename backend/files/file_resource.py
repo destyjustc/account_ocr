@@ -10,6 +10,7 @@ from sqlalchemy.dialects.postgresql import JSON
 import csv
 import math
 from wand.image import Image as im
+from wand.color import Color
 
 MIN_ROW_HEIGHT = 30
 
@@ -23,23 +24,31 @@ class Upload(Resource):
         file = file_obj['file']
         file_name_pre = os.path.splitext(file.filename)[0]
         extension = os.path.splitext(file.filename)[1]
-        id = str(uuid.uuid4())
-        f_name = id + extension
+        file_id = str(uuid.uuid4())
+        f_name = file_id + extension
         if file.content_type and file.content_type == 'application/pdf':
             path = os.path.join(os.getcwd(), 'upload/', f_name)
             file.save(path)
             img = im(filename=path, resolution=200)
-            f_name = id + '.png'
-            path = os.path.join(os.getcwd(), 'upload/', f_name)
             img.compression_quality = 99
-            img.save(filename=path)
-            file_to_save = File(id, file_name_pre+'.png')
+            lst = []
+            for i in range(0, len(img.sequence)):
+                id = str(uuid.uuid4())
+                path = os.path.join(os.getcwd(), 'upload/', id+'.png')
+                temp = im(img.sequence[i])
+                temp.alpha_channel = False
+                temp.save(filename=path)
+                file_to_save = File(id, file_name_pre + '-' + str(i) +'.png')
+                db.session.add(file_to_save)
+                db.session.commit()
+                lst.append({'filename':id +'.png', 'id': id})
+            return json.dumps(lst)
         elif file.content_type and file.content_type.split('/')[0]=='image':
             file.save(os.path.join(os.getcwd(), 'upload/', f_name))
-            file_to_save = File(id, file.filename)
-        db.session.add(file_to_save)
-        db.session.commit()
-        return json.dumps({'filename':f_name, 'id': id})
+            file_to_save = File(file_id, file.filename)
+            db.session.add(file_to_save)
+            db.session.commit()
+            return json.dumps([{'filename':f_name, 'id': file_id}])
 
 class Csv(Resource):
     def get(self, file_id):

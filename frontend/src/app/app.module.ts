@@ -7,6 +7,7 @@ import { AppComponent } from './app.component';
 import { IndexPageComponent } from './index-page/index-page.component';
 import { FileSelectDirective, FileDropDirective } from 'ng2-file-upload'; 
 import {UPLOAD_DIRECTIVES} from 'ng2-file-uploader/ng2-file-uploader';
+import {Ng2PaginationModule} from 'ng2-pagination';
 
 import { ApiService } from './shared';
 
@@ -19,7 +20,8 @@ import { ApiService } from './shared';
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule
+    HttpModule,
+    Ng2PaginationModule
   ],
   providers: [
     ApiService
