@@ -28,7 +28,7 @@ class Upload(Resource):
         if file.content_type and file.content_type == 'application/pdf':
             path = os.path.join(os.getcwd(), 'upload/', f_name)
             file.save(path)
-            img = im(filename=path)
+            img = im(filename=path, resolution=200)
             f_name = id + '.png'
             path = os.path.join(os.getcwd(), 'upload/', f_name)
             img.compression_quality = 99
