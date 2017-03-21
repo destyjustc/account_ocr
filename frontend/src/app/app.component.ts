@@ -87,7 +87,9 @@ export class AppComponent implements AfterViewInit{
     activateAreaSelection() {
         let vm = this;
         $('#input-image').Jcrop({
-            onSelect: this.sendCoors()
+            onSelect: this.sendCoors(),
+            boxWidth: 1600,   //Maximum width you want for your bigger images
+            boxHeight: 800,  //Maximum Height for your bigger images
         }, function() {
             vm.jcrop_api = this;
         });
