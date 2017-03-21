@@ -10,7 +10,7 @@ from sqlalchemy.dialects.postgresql import JSON
 import csv
 import math
 from wand.image import Image as im
-from wand.color import Color
+from itertools import zip_longest
 
 MIN_ROW_HEIGHT = 30
 
@@ -29,7 +29,7 @@ class Upload(Resource):
         if file.content_type and file.content_type == 'application/pdf':
             path = os.path.join(os.getcwd(), 'upload/', f_name)
             file.save(path)
-            img = im(filename=path, resolution=200)
+            img = im(filename=path, resolution=300)
             img.compression_quality = 99
             lst = []
             for i in range(0, len(img.sequence)):
@@ -67,7 +67,7 @@ class Csv(Resource):
             path = os.path.join(os.getcwd(), 'upload/', fn)
             with open(path, 'w', newline='') as f:
                 writer = csv.writer(f, dialect='excel')
-                writer.writerows(zip(*ret))
+                writer.writerows(zip_longest(*ret))
         return json.dumps(fn)
 
 class Coor(Resource):
