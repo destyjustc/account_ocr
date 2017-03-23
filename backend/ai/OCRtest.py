@@ -3,7 +3,7 @@ import pytesseract
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
-from dictionary import *
+from ai.dictionary import *
 import argparse
 import math
 
