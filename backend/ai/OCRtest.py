@@ -3,7 +3,7 @@ import pytesseract
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
-from ai.dictionary import *
+from dictionary import *
 import argparse
 import math
 
@@ -76,6 +76,7 @@ def histConstruct(img, axis=1, blurSize=9, threshold=220, showPlot=False):
         plt.figure()
         plt.plot(hist)
         plt.show()
+    hist = hist - np.min(hist)
     return hist
 
 iparens = iter('(){}[]<>')
@@ -131,6 +132,30 @@ def postprocess(listOfResults):
         listOfResults, prob = postprocessLettersColumn(listOfResults)
     return listOfResults, prob
 
+
+def findColumns(hist, gap = 10):
+    listOfColumns = []
+    start = -1
+    countZeros = 0
+    left_pos = [0]
+    for i in range(len(hist) - 1):
+        if hist[i] == 0:
+            countZeros += 1
+        if hist[i] > 0 and (countZeros > gap or start == -1):
+            start = i
+            countZeros = 0
+            if start - gap//2 > left_pos[-1]:
+                left_pos.append(start - gap//2)
+    left_pos.append(len(hist))
+    for i in range(len(left_pos) - 1):
+        if left_pos[i+1] - left_pos[i] > 20:
+            listOfColumns.append((left_pos[i], left_pos[i+1]))
+
+    return listOfColumns
+
+
+
+
 def findTextLine(hist):
     listOfLines = list()
     start = -1
@@ -157,7 +182,7 @@ def findLineLocations(filename, top_left = (0,0), bottom_right = None):
     linesLocation = findTextLine(hist)
     return linesLocation
 
-def pipeline(filename, top_left = (0,0), bottom_right = None):
+def pipelineOneColumn(filename, top_left = (0,0), bottom_right = None):
     img = cv2.imread(filename)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     if bottom_right is None:
@@ -172,6 +197,28 @@ def pipeline(filename, top_left = (0,0), bottom_right = None):
         listOfResults.append(OCRTextLine(cropLines(img, lineloc), lang='eng', showPlots=False))
     listOfResults, prob = postprocess(listOfResults)
     return linesLocation, listOfResults, prob
+
+def pipelineMultiColumn(filename, top_left = (0,0), bottom_right = None):
+    orgimg = cv2.imread(filename)
+    orgimg = cv2.cvtColor(orgimg, cv2.COLOR_BGR2RGB)
+    if bottom_right is None:
+        bottom_right = (orgimg.shape[0], orgimg.shape[1])
+    orgimg = orgimg[top_left[0]:bottom_right[0], top_left[1]:bottom_right[1], :]
+    histv = histConstruct(orgimg, showPlot=False, axis=0)
+    columns = findColumns(histv)
+    columnResults =[]
+    for column in columns:
+        img = orgimg[:, column[0]:column[1]]
+        hist = histConstruct(img, showPlot=False)
+        linesLocation = findTextLine(hist)
+        listOfResults = list()
+        print(linesLocation)
+        for lineloc in linesLocation:
+            # For Chinese use lang='chi_sim'
+            listOfResults.append(OCRTextLine(cropLines(img, lineloc), lang='eng', showPlots=False))
+        listOfResults, prob = postprocess(listOfResults)
+        columnResults.append({"linesLocation":linesLocation, "listOfResults":listOfResults, "prob":prob})
+    return columnResults
 
 def linesHeight(filename, top_left = (0,0), bottom_right = None):
     img = cv2.imread(filename)
@@ -217,7 +264,10 @@ if __name__ == '__main__':
     # x2 = args.x2
     # y2 = args.y2
 
-    filename='../../data/RBC_col1.png'
-    linesLocation, listOfResults, probs = pipeline(filename)
-    for (loc, result, prob) in zip(linesLocation, listOfResults, probs):
+    filename='../../data/test.png'
+    columnResults = pipelineMultiColumn(filename)
+    for results in columnResults:
+        loc = results['linesLocation']
+        result  = results['listOfResults']
+        prob = results['prob']
         print('from {} to {} : {} prob {}'.format(loc[0], loc[1], result, prob))
